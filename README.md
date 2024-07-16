@@ -68,3 +68,13 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+Fields:
+
+- name: Should be filled
+- email: Should be filled. Also needs to have a @
+- phone number: Should have 10 numbers
+- checkbox: at least one should be selected
+- gender dropdown: should have one selected item. If "Other" is selected, should show field
+- gender radio button: should have one selected item. If "Other" is selected, should show field
