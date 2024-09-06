@@ -1,5 +1,5 @@
 // External imports
-import React, { useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   FormControl,
   InputLabel, 
@@ -23,13 +23,16 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { PatternFormat } from 'react-number-format';
+import { Alert, Snackbar } from '@mui/material';
 
 // Internal imports
 import './App.css';
 import useFormStore from './formState';
+import { checkValue, validatePhoneNumber } from './helpers';
 
 function App() {
   const { form, tempType, handleTypeSelect, handleForm } = useFormStore()
+  const [isAlertTriggered, setIsAlertTriggered] = useState('')
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -45,14 +48,27 @@ function App() {
       time: event.target.elements['time-picker']?.value || undefined,
     };
 
+    // Check if any value in formData is undefined
+    const hasUndefined = Object.values(formData).some(value => value === undefined);
+
+    // Set isAlertTriggered state based on the presence of undefined values
+    if (hasUndefined) {
+      setIsAlertTriggered('error');
+    } else {
+      setIsAlertTriggered('success');
+    }
+
     handleForm(formData)
 
     console.log('Form submitted:', formData);
   }
 
-  useEffect(() => {
-    console.log('form', form)
-  }, [form])
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway')
+      return
+
+    setIsAlertTriggered('');
+  };
 
   return (
     <div className="App">
@@ -86,10 +102,10 @@ function App() {
               Should check if w3hat's typed is a number
               Age should be equal or above 18
           */}  
-          <FormControl error={form.age === undefined}>
+          <FormControl error={!!checkValue(form.age)}>
             <InputLabel htmlFor="age-input">Inform your age</InputLabel>
               <Input id="age-input" />
-              {form.age === undefined && <FormHelperText id="age-input-error">You should be 18 or older</FormHelperText>}
+              {!!checkValue(form.age) && <FormHelperText id="age-input-error">{checkValue(form.age)}</FormHelperText>}
           </FormControl>
 
           {/*
@@ -103,8 +119,8 @@ function App() {
             label="Phone Number"
             variant="outlined"
             name="phone-input"
-            error={form.phoneNumber === undefined}
-            helperText={form.phoneNumber === undefined && <FormHelperText id="phone-input-error">Your phone number should be 10 characters long</FormHelperText>}
+            error={validatePhoneNumber(form.phone)}
+            helperText={validatePhoneNumber(form.phone) && <FormHelperText id="phone-input-error">Your phone number should be 10 characters long</FormHelperText>}
           />
           
           {/*
@@ -164,25 +180,25 @@ function App() {
           */} 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={[ 'DatePicker', 'TimePicker' ]}>
-              <DemoItem label={<Typography variant='body1' sx={{ color: 'gray' }}>Pick Date</Typography>}>
+              <DemoItem label={<span style={{ color: 'gray' }}>Pick Date</span>}>
                 <DatePicker
                   id="date-picker"
                   name="date-picker"
                   slotProps={{
                     textField: {
-                      helperText: 'Inform date',
+                      helperText: form.date === undefined && 'Inform date',
                       error: form.date === undefined
                     },
                   }}
                 />
               </DemoItem>
-              <DemoItem label={<Typography variant='body1' sx={{ color: 'gray' }}>Pick Time</Typography>}>
+              <DemoItem label={<span style={{ color: 'gray' }}>Pick Time</span>}>
                 <TimePicker
                   id="time-picker"
                   name="time-picker"
                   slotProps={{
                     textField: {
-                      helperText: 'Inform time',
+                      helperText: form.time === undefined && 'Inform time',
                       error: form.time === undefined
                     },
                   }}
@@ -195,6 +211,38 @@ function App() {
             Submit
           </Button>
         </form>
+
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          open={isAlertTriggered === 'success'}
+          autoHideDuration={6000}
+          onClose={handleClose}
+        >
+          <Alert
+            onClose={handleClose}
+            severity="success"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            The form was submitted!
+          </Alert>
+        </Snackbar>
+
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          open={isAlertTriggered === 'error'}
+          autoHideDuration={6000}
+          onClose={handleClose}
+        >
+          <Alert
+            onClose={handleClose}
+            severity="error"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            Form has errors!
+          </Alert>
+        </Snackbar>
       </Stack>
     </div>
   );

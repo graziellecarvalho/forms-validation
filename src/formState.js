@@ -4,8 +4,8 @@ const useFormStore = create((set) => ({
   form: {
     name: '',
     email: '',
-    age: 0,
-    phoneNumber: '',
+    age: '',
+    phone: '',
     gender: '',
     type: '',
     date: '',
