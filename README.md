@@ -1,3 +1,13 @@
+### ⚠️  About this branch
+
+```typescript```
+
+- The ```typescript``` branch is dedicated to the implementation of TypeScript, capturing all necessary changes and updates.
+- This branch serves as the foundational base for any work related to TypeScript.
+
+
+---
+
 # Forms validation 
 
 This repository contains a forms validation library aimed at ensuring user inputs meet specific criteria. Below you'll find instructions on how to contribute, test new libraries, and understand the fields to be validated.

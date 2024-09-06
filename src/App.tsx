@@ -1,5 +1,5 @@
 // External imports
-import React, { useEffect } from 'react'
+import React, { useEffect, FormEvent } from 'react'
 import {
   FormControl,
   InputLabel, 
@@ -26,28 +26,47 @@ import { PatternFormat } from 'react-number-format';
 
 // Internal imports
 import './App.css';
-import useFormStore from './formState';
+import { useFormStore } from './store/formState';
+import { FormProps } from './states/form';
+
+function checkValue(value: string) {
+  if (value?.trim() === '') {
+    return false; // No error for an empty field
+  }
+
+  let number = parseInt(value);  // Convert to an integer
+  if (!isNaN(number)) {
+      if (number >= 18) {
+          return false;
+      } else {
+          return 'You should be 18 or older';
+      }
+  } else {
+      return 'Not a number';
+  }
+}
 
 function App() {
   const { form, tempType, handleTypeSelect, handleForm } = useFormStore()
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.target as HTMLFormElement;
 
-    const formData = {
-      name: event.target.elements['name-input']?.value || undefined,
-      email: event.target.elements['email-input']?.value || undefined,
-      age: event.target.elements['age-input']?.value || undefined,
-      phone: event.target.elements['phone-input']?.value || undefined,
-      gender: event.target.elements['gender-radio-group']?.value || undefined,
-      type: event.target.elements['type-select-input']?.value || undefined,
-      date: event.target.elements['date-picker']?.value || undefined,
-      time: event.target.elements['time-picker']?.value || undefined,
+    const formProps: FormProps = {
+      name: (form.elements.namedItem('name-input') as HTMLInputElement)?.value || undefined,
+      email: (form.elements.namedItem('email-input') as HTMLInputElement)?.value || undefined,
+      age: (form.elements.namedItem('age-input') as HTMLInputElement)?.value || undefined,
+      phoneNumber: (form.elements.namedItem('phone-input') as HTMLInputElement)?.value || undefined,
+      gender: (form.elements.namedItem('gender-radio-input') as RadioNodeList)?.value || undefined,
+      type: (form.elements.namedItem('type-select-input') as HTMLSelectElement)?.value || undefined,
+      date: (form.elements.namedItem('date-picker') as HTMLInputElement)?.value || undefined,
+      time: (form.elements.namedItem('time-picker') as HTMLInputElement)?.value || undefined,
     };
 
-    handleForm(formData)
+    handleForm(formProps)
 
-    console.log('Form submitted:', formData);
+    console.log('Form submitted:', formProps);
   }
 
   useEffect(() => {
@@ -59,7 +78,7 @@ function App() {
       <Typography variant="h2">Request meeting</Typography>
       
       <Stack>
-        <form gap={3} className='form-wrapper' onSubmit={handleSubmit}>
+        <form className='form-wrapper' onSubmit={handleSubmit}>
           <Typography variant="h4">Personal Information</Typography>
           {/*
             NAME
@@ -86,10 +105,10 @@ function App() {
               Should check if w3hat's typed is a number
               Age should be equal or above 18
           */}  
-          <FormControl error={form.age === undefined}>
+          <FormControl error={!!checkValue(form.age)}>
             <InputLabel htmlFor="age-input">Inform your age</InputLabel>
               <Input id="age-input" />
-              {form.age === undefined && <FormHelperText id="age-input-error">You should be 18 or older</FormHelperText>}
+              {!!checkValue(form.age) && <FormHelperText id="age-input-error">{checkValue(form.age)}</FormHelperText>}
           </FormControl>
 
           {/*
@@ -166,7 +185,7 @@ function App() {
             <DemoContainer components={[ 'DatePicker', 'TimePicker' ]}>
               <DemoItem label={<Typography variant='body1' sx={{ color: 'gray' }}>Pick Date</Typography>}>
                 <DatePicker
-                  id="date-picker"
+                  // id="date-picker"
                   name="date-picker"
                   slotProps={{
                     textField: {
@@ -178,7 +197,7 @@ function App() {
               </DemoItem>
               <DemoItem label={<Typography variant='body1' sx={{ color: 'gray' }}>Pick Time</Typography>}>
                 <TimePicker
-                  id="time-picker"
+                  // id="time-picker"
                   name="time-picker"
                   slotProps={{
                     textField: {
