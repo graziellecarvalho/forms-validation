@@ -1,5 +1,5 @@
 // External imports
-import React, { useEffect, FormEvent } from 'react'
+import React, { useState, FormEvent } from 'react'
 import {
   FormControl,
   InputLabel, 
@@ -23,55 +23,49 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { PatternFormat } from 'react-number-format';
+import { Alert, Snackbar, SnackbarCloseReason } from '@mui/material';
 
 // Internal imports
 import './App.css';
 import { useFormStore } from './store/formState';
 import { FormProps } from './states/form';
-
-function checkValue(value: string) {
-  if (value?.trim() === '') {
-    return false; // No error for an empty field
-  }
-
-  let number = parseInt(value);  // Convert to an integer
-  if (!isNaN(number)) {
-      if (number >= 18) {
-          return false;
-      } else {
-          return 'You should be 18 or older';
-      }
-  } else {
-      return 'Not a number';
-  }
-}
+import { checkValue, validatePhoneNumber, validateForm } from './helpers';
 
 function App() {
   const { form, tempType, handleTypeSelect, handleForm } = useFormStore()
+  const [isAlertTriggered, setIsAlertTriggered] = useState('')
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
 
-    const formProps: FormProps = {
+    const formData: FormProps = {
       name: (form.elements.namedItem('name-input') as HTMLInputElement)?.value || undefined,
       email: (form.elements.namedItem('email-input') as HTMLInputElement)?.value || undefined,
       age: (form.elements.namedItem('age-input') as HTMLInputElement)?.value || undefined,
-      phoneNumber: (form.elements.namedItem('phone-input') as HTMLInputElement)?.value || undefined,
-      gender: (form.elements.namedItem('gender-radio-input') as RadioNodeList)?.value || undefined,
+      phone: (form.elements.namedItem('phone-input') as HTMLInputElement)?.value || undefined,
+      gender: (form.elements.namedItem('gender-radio-group') as RadioNodeList)?.value || undefined,
       type: (form.elements.namedItem('type-select-input') as HTMLSelectElement)?.value || undefined,
       date: (form.elements.namedItem('date-picker') as HTMLInputElement)?.value || undefined,
       time: (form.elements.namedItem('time-picker') as HTMLInputElement)?.value || undefined,
     };
 
-    handleForm(formProps)
+    setIsAlertTriggered(validateForm(formData));
 
-    console.log('Form submitted:', formProps);
+    handleForm(formData)
+
+    console.log('Form submitted:', formData);
   }
+  
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason,
+  ) => {
+    if (reason === 'clickaway')
+      return
 
-  useEffect(() => {
-    console.log('form', form)
-  }, [form])
+    setIsAlertTriggered('');
+  };
 
   return (
     <div className="App">
@@ -122,8 +116,8 @@ function App() {
             label="Phone Number"
             variant="outlined"
             name="phone-input"
-            error={form.phoneNumber === undefined}
-            helperText={form.phoneNumber === undefined && <FormHelperText id="phone-input-error">Your phone number should be 10 characters long</FormHelperText>}
+            error={validatePhoneNumber(form.phone)}
+            helperText={validatePhoneNumber(form.phone) && <FormHelperText id="phone-input-error">Your phone number should be 10 characters long</FormHelperText>}
           />
           
           {/*
@@ -183,25 +177,25 @@ function App() {
           */} 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={[ 'DatePicker', 'TimePicker' ]}>
-              <DemoItem label={<Typography variant='body1' sx={{ color: 'gray' }}>Pick Date</Typography>}>
+              <DemoItem label={<span style={{ color: 'gray' }}>Pick Date</span>}>
                 <DatePicker
                   // id="date-picker"
                   name="date-picker"
                   slotProps={{
                     textField: {
-                      helperText: 'Inform date',
+                      helperText: form.date === undefined && 'Inform date',
                       error: form.date === undefined
                     },
                   }}
                 />
               </DemoItem>
-              <DemoItem label={<Typography variant='body1' sx={{ color: 'gray' }}>Pick Time</Typography>}>
+              <DemoItem label={<span style={{ color: 'gray' }}>Pick Time</span>}>
                 <TimePicker
                   // id="time-picker"
                   name="time-picker"
                   slotProps={{
                     textField: {
-                      helperText: 'Inform time',
+                      helperText: form.time === undefined && 'Inform time',
                       error: form.time === undefined
                     },
                   }}
@@ -214,6 +208,38 @@ function App() {
             Submit
           </Button>
         </form>
+
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          open={isAlertTriggered === 'success'}
+          autoHideDuration={6000}
+          onClose={handleClose}
+        >
+          <Alert
+            onClose={handleClose}
+            severity="success"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            The form was submitted!
+          </Alert>
+        </Snackbar>
+
+        <Snackbar
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          open={isAlertTriggered === 'error'}
+          autoHideDuration={6000}
+          onClose={handleClose}
+        >
+          <Alert
+            onClose={handleClose}
+            severity="error"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            Form has errors!
+          </Alert>
+        </Snackbar>
       </Stack>
     </div>
   );

@@ -12,7 +12,7 @@ const defaultFormValues: FormProps = {
   name: '',
   email: '',
   age: '',
-  phoneNumber: '',
+  phone: '',
   gender: '',
   type: '',
   date: '',
