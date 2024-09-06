@@ -11,7 +11,7 @@ interface FormPropsState {
 const defaultFormValues: FormProps = {
   name: '',
   email: '',
-  age: '',
+  age: 0,
   phone: '',
   gender: '',
   type: '',

@@ -1,7 +1,7 @@
 export interface FormProps {
   name: string
   email: string
-  age: string
+  age: number
   phone: string
   gender: string
   type: string

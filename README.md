@@ -1,9 +1,22 @@
-### ⚠️  About this branch
+## ⚠️  About this branch
 
-```typescript```
+```zod```
 
-- The ```typescript``` branch is dedicated to the implementation of TypeScript, capturing all necessary changes and updates.
-- This branch serves as the foundational base for any work related to TypeScript.
+- The ```zod``` branch is dedicated to the implementation of Zod
+- This branch was checkout from ```typescript``` branch.
+
+### Main changes made:
+
+- **Form Validation Approach:** using React Hook Form's register method for managing inputs and Zod for schema-based validation, errors are automatically handled via the errors object, which React Hook Form generates based on the Zod schema.
+- **Form Field Registration:** fields are registered with React Hook Form using the register function, which ties the input to the form's validation schema and state management.
+- **Error handling:** checks for errors using the errors object from React Hook Form (!!errors.name), which simplifies error display and ensures that error messages come from the Zod validation rules.
+- **Phone number handling:** the phone number value is controlled by setValue and watch, different from what we see on name, email and age, due to the formatting used by PatternFormat, ensuring consistency across the form.
+- **Date and Time Pickers:** integrates the pickers with React Hook Form, using watch to monitor values and setValue to update the form state, different from what we see on name, email and age, due to allowed format from Zod.
+
+### Overall
+
+- Zod offers a simple, declarative syntax for defining complex validation rules for objects and values in JavaScript.
+- Zod offers more concise and scalable code, especially for handling form submissions and validations.
 
 
 ---
