@@ -29,3 +29,15 @@ export function validatePhoneNumber(phoneNumber) {
   else
     return false;
 }
+
+export function validateForm(formData) {
+  const hasUndefined = Object.values(formData).some(value => value === undefined);
+
+    // Set isAlertTriggered state based on the presence of undefined values
+    if (hasUndefined || validatePhoneNumber(formData.phone) || checkValue(formData.age)) {
+      return 'error'
+    } else {
+      return 'success'
+    }
+
+}

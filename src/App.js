@@ -28,7 +28,7 @@ import { Alert, Snackbar } from '@mui/material';
 // Internal imports
 import './App.css';
 import useFormStore from './formState';
-import { checkValue, validatePhoneNumber } from './helpers';
+import { checkValue, validatePhoneNumber, validateForm } from './helpers';
 
 function App() {
   const { form, tempType, handleTypeSelect, handleForm } = useFormStore()
@@ -48,15 +48,7 @@ function App() {
       time: event.target.elements['time-picker']?.value || undefined,
     };
 
-    // Check if any value in formData is undefined
-    const hasUndefined = Object.values(formData).some(value => value === undefined);
-
-    // Set isAlertTriggered state based on the presence of undefined values
-    if (hasUndefined) {
-      setIsAlertTriggered('error');
-    } else {
-      setIsAlertTriggered('success');
-    }
+    setIsAlertTriggered(validateForm(formData));
 
     handleForm(formData)
 
